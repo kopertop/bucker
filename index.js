@@ -9,6 +9,7 @@ var File = require('./lib/file');
 var Syslog = require('./lib/syslog');
 var Logstash = require('./lib/logstash');
 var SplunkStorm = require('./lib/splunk');
+var Loggly = require('./lib/loggly');
 var UDP = require('./lib/udp');
 
 var types = ['console', 'file', 'syslog', 'logstash', 'udp', 'splunk'];
@@ -31,6 +32,7 @@ var Bucker = function (opts, mod) {
     self.syslog = {};
     self.logstash = {};
     self.splunk = {};
+    self.loggly = {};
     self.udp = {};
     self.console = {};
     self.handlers = { access: {}, debug: {}, info: {}, warn: {}, error: {}, exception: {}, stat: {} };
@@ -84,6 +86,13 @@ var Bucker = function (opts, mod) {
     } else {
         self._setDefaultHandler({ splunk: false }, 'splunk');
     }
+
+    if (opts.hasOwnProperty('loggly')) {
+        self._setDefaultHandler(opts.loggly, 'loggly');
+    } else {
+        self._setDefaultHandler({ loggly: false }, 'loggly');
+    }
+
 
 
     if (opts.hasOwnProperty('udp')) {
@@ -177,6 +186,16 @@ Bucker.prototype._setHandler = function (options, level) {
                 self.handlers[level].splunk = self.splunk[hash];
             }
         }
+        if (options.hasOwnProperty('loggly')) {
+            if (options.loggly === false) {
+                self.handlers[level].loggly = false;
+            } else {
+                hash = typeof options.loggly === 'string' ? options.loggly : JSON.stringify(options.loggly);
+                if (!self.loggly.hasOwnProperty(hash)) self.loggly[hash] = self.loggers.push(Loggly(options.loggly, options.loggly.name || self.name)) - 1;
+                self.handlers[level].loggly = self.loggly[hash];
+            }
+        }
+
 
         if (options.hasOwnProperty('udp')) {
             if (options.udp === false) {
