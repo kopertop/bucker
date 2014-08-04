@@ -12,7 +12,7 @@ var SplunkStorm = require('./lib/splunk');
 var Loggly = require('./lib/loggly');
 var UDP = require('./lib/udp');
 
-var types = ['console', 'file', 'syslog', 'logstash', 'udp', 'splunk'];
+var types = ['console', 'file', 'syslog', 'logstash', 'udp', 'splunk', 'loggly'];
 var levels = {
     debug: { num: 0, color: 'blue' },
     info: { num: 1, color: 'green' },
